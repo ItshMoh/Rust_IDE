@@ -9,7 +9,9 @@ This project leverages a **Qwen2.5 Coder 7b model** to generate Rust projects ba
 - Automatically structures project files (`Cargo.toml`, `src/main.rs`, etc.).
 - Saves the generated files in the repository.
 - Ensures proper formatting and error handling.
+
 **NOTE**
+
 - Currently the rust compiler has not been integrated in the project for sending the errors to the llm again. 
 - I am figuring out the best way to store the context for the fast retrieval for the qwen model.
 ---
