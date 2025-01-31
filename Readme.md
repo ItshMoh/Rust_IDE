@@ -23,10 +23,13 @@ This project leverages a **Qwen2.5 Coder 7b model** to generate Rust projects ba
 - `pip` installed
 - Rust installed (if testing generated projects)
 
-### 2️⃣ Clone the Repository
+### 2️⃣ Executing the project
 ```sh
-git clone <your-repo-url>
+git clone <https://github.com/ItshMoh/Rust_IDE.git>
 pip install -r requirements.txt
+cd src
+cp .env.example .env
+cd ..
 python3 main.py
 
 ```
