@@ -1,8 +1,7 @@
 
 import requests
 from typing import Dict
-import json
-import backoff  
+import json 
 from dotenv import load_dotenv
 from src.project_generator import ProjectGenerator
 load_dotenv()
@@ -10,61 +9,77 @@ import os
 class QwenCoderClient:
     def __init__(self):
         self.base_url = "https://openrouter.ai/api/v1/chat/completions"
-        self.model = "qwen-2.5-coder-7b"
+        self.model = "deepseek/deepseek-r1-distill-llama-70b"
         self.api_key = os.getenv('API_KEY')
 
     def _prepare_headers(self) -> Dict[str, str]:
         return {
+            
             "Authorization": f"Bearer {self.api_key}"
         }
     
-    @backoff.on_exception(backoff.expo, 
-                         (requests.exceptions.Timeout, 
-                          requests.exceptions.ConnectionError),
-                         max_tries=3)
-    def generate(self,input:str) -> str:
+ 
+    def generate(self,input:str,context:list[dict]) -> str:
         endpoint = f"{self.base_url}"
-        
-        payload = json.dumps({
-    "model": "qwen/qwen-2.5-7b-instruct",
-    "messages": [
-        {"role": "system", "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. 
+        messages= [
+            {"role": "system", "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. 
 
-Always generate these files:
-1. Cargo.toml with proper metadata and dependencies
-2. src/main.rs or src/lib.rs as appropriate
-3. Any needed module files under src/
+    Always generate these files:
+    1. Cargo.toml with proper metadata and dependencies
+    2. src/main.rs or src/lib.rs as appropriate
+    3. Any needed module files under src/
 
-Format your response like this:
+    Format your response like this:
 
-[FILE: Cargo.toml]
-<content>
-[END FILE]
+    [FILE: Cargo.toml]
+    <content>
+    [END FILE]
 
-[FILE: src/main.rs]
-<content>
-[END FILE]
+    [FILE: src/main.rs]
+    <content>
+    [END FILE]
 
-[FILE: src/<module_name>.rs]
-<content>
-[END FILE]
+    [FILE: src/<module_name>.rs]
+    <content>
+    [END FILE]
 
-Ensure all files follow Rust best practices and contain proper module declarations, use statements, and error handling.
-If the user asks for a specific file, only generate that file. If the user asks for multiple files, generate them all. 
-If the user asks to generate frontend, also generate frontend for the project as the user suggests.
-"""},
-        {"role": "user", "content": input} 
+    Ensure all files follow Rust best practices and contain proper module declarations, use statements, and error handling.
+    If the user asks for a specific file, only generate that file. If the user asks for multiple files, generate them all. 
+    If the user asks to generate frontend, also generate frontend for the project as the user suggests.
+    """}
     ]
+        for entry in context:
+       
+            print('entry',entry)
+            if entry["prompt"]:
+                messages.append({"role": "user", "content": entry["prompt"]})
+            
+           
+            if entry["response"] or entry["error"]:
+                content = ""
+                if entry["response"]:
+                    content += entry["response"]
+                if entry["error"]:
+                    content += f"\nError encountered: {entry['error']}\n"
+                    content += "Please consider this error while providing the next solution."
+                messages.append({"role": "assistant", "content": content})
+        
+    
+        messages.append({"role": "user", "content": input})
+        payload = json.dumps({
+    "model": "deepseek/deepseek-r1-distill-llama-70b",
+    "messages": messages
+    
 })
         
         
-        response = requests.post(endpoint,headers= self._prepare_headers(),data=payload )
+        response = requests.post(endpoint, headers=self._prepare_headers(), data=payload)
         if response.status_code == 200:
             response_json = response.json()
             print('response_json', response_json)
             if "choices" in response_json and len(response_json["choices"]) > 0:
                 response_text = response_json["choices"][0]["message"]["content"]
-    
+
                 parsed_files = ProjectGenerator.parse_llm_response(response_text)
                 print("Parsed Files:\n", parsed_files)
                 project_directory = "generated_rust_project"

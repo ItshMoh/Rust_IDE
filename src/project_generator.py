@@ -31,7 +31,7 @@ class ProjectGenerator:
                     continue
                 current_content.append(line)
 
-        return files 
+        return files  
     def save_files(files: Dict[str, str], project_dir: str):
         """Saves extracted files from LLM response to disk."""
         for filepath, content in files.items():
