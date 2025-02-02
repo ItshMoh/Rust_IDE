@@ -22,7 +22,8 @@ class QwenCoderClient:
     def generate(self,input:str,context:list[dict]) -> str:
         endpoint = f"{self.base_url}"
         messages= [
-            {"role": "system", "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. 
+            {"role": "system", "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. You will be given the context that will be comprising of the previous your responses and errors sent by the rust compiler for the previous codes. 
+            It is strictly prohibited don't give any explanaitons to the user just the code.
 
     Always generate these files:
     1. Cargo.toml with proper metadata and dependencies
@@ -42,7 +43,8 @@ class QwenCoderClient:
     [FILE: src/<module_name>.rs]
     <content>
     [END FILE]
-
+    
+           
     Ensure all files follow Rust best practices and contain proper module declarations, use statements, and error handling.
     If the user asks for a specific file, only generate that file. If the user asks for multiple files, generate them all. 
     If the user asks to generate frontend, also generate frontend for the project as the user suggests.
