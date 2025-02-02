@@ -12,8 +12,8 @@ This project leverages a **Qwen2.5 Coder 7b model** to generate Rust projects ba
 
 **NOTE**
 
-- Currently the rust compiler has not been integrated in the project for sending the errors to the llm again. 
-- I am figuring out the best way to store the context for the fast retrieval for the qwen model.
+- The rust compiler is being integrated into this project.So now it sends error back to the llm and model iterates over the code and fix the errors.
+- It is not performing very good on complex project.
 ---
 
 ## 🛠️ Setup & Installation
@@ -22,6 +22,7 @@ This project leverages a **Qwen2.5 Coder 7b model** to generate Rust projects ba
 - Python 3.7+ installed
 - `pip` installed
 - Rust installed (if testing generated projects)
+- A mongo database.
 
 ### 2️⃣ Executing the project
 ```sh
@@ -33,4 +34,4 @@ cd ..
 python3 main.py
 
 ```
-Here is the Video link for using it. [https://www.loom.com/share/bbc3d8bfb37a40e99b526dbbed61bd3c?sid=7fdbe2d6-eb09-4484-b02f-1dcf29bda3ce]
+Here is the Video link for using it. [https://www.loom.com/share/34958ed9dc8145ae81d6ee8f49b563bc?sid=71e14109-bed4-4455-b70c-878be62a1fda]
