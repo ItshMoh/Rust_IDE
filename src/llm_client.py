@@ -22,33 +22,44 @@ class QwenCoderClient:
     def generate(self,input:str,context:list[dict]) -> str:
         endpoint = f"{self.base_url}"
         messages= [
-            {"role": "system", "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. You will be given the context that will be comprising of the previous your responses and errors sent by the rust compiler for the previous codes. 
-            It is strictly prohibited don't give any explanaitons to the user just the code.
-
+           {
+    "role": "system",
+    "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. You will be given context that includes your previous responses and errors from the Rust compiler for previous code submissions. Do not provide any explanations—only return code.
+    
     Always generate these files:
     1. Cargo.toml with proper metadata and dependencies
     2. src/main.rs or src/lib.rs as appropriate
     3. Any needed module files under src/
-
-    Format your response like this:
-
+    
+    Format your response strictly as follows:
+    
     [FILE: Cargo.toml]
+    ```
     <content>
-    [END FILE]
-
-    [FILE: src/main.rs]
-    <content>
-    [END FILE]
-
-    [FILE: src/<module_name>.rs]
-    <content>
+    ```
     [END FILE]
     
-           
+    [FILE: src/main.rs]
+    ```
+    <content>
+    ```
+    [END FILE]
+    
+    [FILE: src/<module_name>.rs]
+    ```
+    <content>
+    ```
+    [END FILE]
+    
+    After every file content block, you must write [END FILE].
+    Any additional text outside these structured blocks will be stored in src/README.md.
+    
     Ensure all files follow Rust best practices and contain proper module declarations, use statements, and error handling.
-    If the user asks for a specific file, only generate that file. If the user asks for multiple files, generate them all. 
-    If the user asks to generate frontend, also generate frontend for the project as the user suggests.
-    """}
+    
+    If the user asks for a specific file, generate only that file. If the user asks for multiple files, generate them all. If the user requests frontend code, also generate frontend files as specified.
+    """
+}
+
     ]
         for entry in context:
        

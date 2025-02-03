@@ -1,6 +1,6 @@
 # LLM Code Generator 🚀
 
-This project leverages a **Qwen2.5 Coder 7b model** to generate Rust projects based on user prompts. The generated code is automatically parsed and saved in a structured repository format.
+This project leverages a **DeepSeek R1 Distill Llama 70B** to generate Rust projects based on user prompts. The generated code is automatically parsed and saved in a structured repository format.
 
 ## 📜 Project Overview
 
