@@ -24,7 +24,7 @@ class QwenCoderClient:
         messages= [
            {
     "role": "system",
-    "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. You will be given context that includes your previous responses and errors from the Rust compiler for previous code submissions. Do not provide any explanations—only return code.
+    "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. You will be given context that includes the parsed files and errors from the Rust compiler for previous code submissions. Focus only on the most recent errors and fix the code to emit those errors.Do not provide any explanations—only return code.
     
     Always generate these files:
     1. Cargo.toml with proper metadata and dependencies
