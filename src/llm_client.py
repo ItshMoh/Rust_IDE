@@ -19,7 +19,7 @@ class QwenCoderClient:
         }
     
  
-    def generate(self,input:str,context:list[dict]) -> str:
+    def generate(self,input:str,context:list[dict]) -> dict[str,str]:
         endpoint = f"{self.base_url}"
         messages= [
            {
@@ -92,11 +92,13 @@ class QwenCoderClient:
             print('response_json', response_json)
             if "choices" in response_json and len(response_json["choices"]) > 0:
                 response_text = response_json["choices"][0]["message"]["content"]
-
+                # print("Response Text:\n", response_text)
                 parsed_files = ProjectGenerator.parse_llm_response(response_text)
                 print("Parsed Files:\n", parsed_files)
                 project_directory = "generated_rust_project"
                 ProjectGenerator.save_files(parsed_files, project_directory)
+                # return response_text
+                return parsed_files
             else:
                 print("Error: No valid response content from the API.")
         else:

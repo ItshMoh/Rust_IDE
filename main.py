@@ -19,8 +19,8 @@ def main():
             context = doc["context"]
             response = llm_client.generate(prompt,context)
             status , error = compiler.compile_project('generated_rust_project/')
-            collection.find_one_and_update({"username":"Itshmoh"}, {"$push": {"context": {"prompt": prompt, "response": response, "error": error}}}, upsert=True) 
-            print(response)
+            collection.find_one_and_update({"username":"Itshmoh"}, {"$push": {"context": {"prompt": prompt, "response": str(response), "error": error}}}, upsert=True) 
+            print("response::",response)
       
     except Exception as e:
         print(f"Error during project generation: {e}")
