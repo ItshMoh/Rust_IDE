@@ -3,21 +3,23 @@ from src.project_generator import ProjectGenerator
 from pymongo import MongoClient
 from src.rust_compiler import RustCompiler
 import os
+from src.retrieve import retrieve_relevant_docs
 client = MongoClient(os.getenv('MONGO_URI'))
 db = client['Rust_IDE']
 collection = db['Chat-context']
-# here in the place of username enter a name and it will make a user.
+
 collection.insert_one({"username":"Itshmoh" ,"context":[{"prompt":"", "response": "", "error": ""}]})
 def main():
     llm_client = QwenCoderClient()
     compiler = RustCompiler()
     prompt = input("Enter your project description: ")
+    knowledge_base = retrieve_relevant_docs(prompt)
     status = False
     try:
         while(status!=True):
             doc = collection.find_one({"username":"Itshmoh"}) #Enter the same username that you typed above.
             context = doc["context"]
-            response = llm_client.generate(prompt,context)
+            response = llm_client.generate(prompt,context,knowledge_base)
             status , error = compiler.compile_project('generated_rust_project/')
             collection.find_one_and_update({"username":"Itshmoh"}, {"$push": {"context": {"prompt": prompt, "response": str(response), "error": error}}}, upsert=True) 
             print("response::",response)

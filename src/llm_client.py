@@ -19,12 +19,16 @@ class QwenCoderClient:
         }
     
  
-    def generate(self,input:str,context:list[dict]) -> dict[str,str]:
+    def generate(self,input:str,context:list[dict],knowledge:dict) -> dict[str,str]:
         endpoint = f"{self.base_url}"
         messages= [
            {
     "role": "system",
-    "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. You will be given context that includes the parsed files and errors from the Rust compiler for previous code submissions. Focus only on the most recent errors and fix the code to emit those errors.Do not provide any explanations—only return code.
+    "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. You will be given context that includes the parsed files and errors from the Rust compiler for previous code submissions. Focus only on the most recent errors and fix the code to emit those errors.Do not provide any explanations—only return code. You would be provided the knowledge base which will be helping you for making the project. You can take the help of it if you want. 
+
+    Each knowledge base entry contains:
+    - The original detailed implementation
+    - A summary of the detailed implementation
     
     Always generate these files:
     1. Cargo.toml with proper metadata and dependencies
@@ -51,6 +55,7 @@ class QwenCoderClient:
     ```
     [END FILE]
     
+    you will always produce the 
     After every file content block, you must write [END FILE].
     Any additional text outside these structured blocks will be stored in src/README.md.
     
@@ -60,7 +65,18 @@ class QwenCoderClient:
     """
 }
 
-    ]
+    ]   
+        
+        if knowledge:
+            base_content = "Relevant knowledge base entries:\n\n"
+            for entry in knowledge:
+                base_content += f"Summary: {entry[2]}\n"
+                base_content += f"Implementation: {entry[1]}\n\n"
+        
+            messages.append({
+                "role": "system",
+                "content": base_content
+            })
         for entry in context:
        
             print('entry',entry)
@@ -103,4 +119,3 @@ class QwenCoderClient:
                 print("Error: No valid response content from the API.")
         else:
             print(f"API Error: {response.status_code}, {response.text}")
-       
