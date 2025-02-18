@@ -45,10 +45,10 @@ def fetch_from_postgres(questions):
     return results
 def retrieve_relevant_docs(prompt):
     retrieved_ids = search_rust_resources(prompt)
-    # print("retrieved_ids",retrieved_ids)
+
     results = fetch_from_postgres(retrieved_ids)
 
     return results 
-# (retrieve_relevant_docs("How does filter_map works with options in rust"))
+
 
 

@@ -19,12 +19,13 @@ class QwenCoderClient:
         }
     
  
-    def generate(self,input:str,context:list[dict],knowledge:dict) -> dict[str,str]:
+    def generate(self,input:str,context:list[dict],knowledge:dict,user_context:str) -> dict[str,str]:
         endpoint = f"{self.base_url}"
         messages= [
            {
     "role": "system",
     "content": """You are a Rust development expert. When asked to create a Rust project, you will generate all necessary files for a complete, compilable cargo project. You will be given context that includes the parsed files and errors from the Rust compiler for previous code submissions. Focus only on the most recent errors and fix the code to emit those errors.Do not provide any explanations—only return code. You would be provided the knowledge base which will be helping you for making the project. You can take the help of it if you want. 
+    You will be receiveing some documents which you can help with making the project. Use it whenever you feel the use.
 
     Each knowledge base entry contains:
     - The original detailed implementation
@@ -56,7 +57,7 @@ class QwenCoderClient:
     [END FILE]
     
     you will always produce the 
-    After every file content block, you must write [END FILE].
+    After every file content block, you must write [END FILE]. you have to strictly follow the above response format for files.
     Any additional text outside these structured blocks will be stored in src/README.md.
     
     Ensure all files follow Rust best practices and contain proper module declarations, use statements, and error handling.
@@ -77,6 +78,15 @@ class QwenCoderClient:
                 "role": "system",
                 "content": base_content
             })
+
+        if user_context:
+            base_text = "Relevant documents for making this project:\n\n"
+            base_text += user_context    
+            messages.append({
+                "role": "system",
+                "content": base_text
+            })
+
         for entry in context:
        
             print('entry',entry)

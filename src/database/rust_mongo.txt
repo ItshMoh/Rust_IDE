@@ -1,0 +1,114 @@
+Using MongoDB with Rust
+MongoDB is a NoSQL database that stores data in flexible JSON-like documents. In Rust, the mongodb crate provides an asynchronous driver to interact with MongoDB efficiently.
+
+1. Setting Up Dependencies
+To use MongoDB in Rust, add the following dependency to your Cargo.toml:
+```
+[dependencies]
+mongodb = "2.8"   # Async MongoDB driver
+tokio = { version = "1", features = ["full"] }  # Required for async runtime
+serde = { version = "1", features = ["derive"] } # Serialization & Deserialization
+```
+2. Connecting to MongoDB
+A MongoDB connection requires specifying a connection URI (e.g., mongodb://localhost:27017 for a local instance)
+```
+use mongodb::{bson::doc, options::ClientOptions, Client};
+use tokio;
+
+#[tokio::main]
+async fn main() -> mongodb::error::Result<()> {
+    // Define the connection string
+    let client_uri = "mongodb://localhost:27017";
+
+    // Create a MongoDB client
+    let client_options = ClientOptions::parse(client_uri).await?;
+    let client = Client::with_options(client_options)?;
+
+    // Access a specific database and collection
+    let database = client.database("my_database");
+    let collection = database.collection::<mongodb::bson::Document>("users");
+
+    println!("Connected to MongoDB!");
+    Ok(())
+}
+```
+This establishes a connection to MongoDB running locally and accesses a database named my_database with a users collection.
+
+3. Inserting a Document into MongoDB
+To store data, define a Rust struct and serialize it using serde:
+```
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+struct User {
+    name: String,
+    age: u32,
+    email: String,
+}
+```
+
+Now, insert a new user into MongoDB:
+```
+async fn insert_user(collection: &mongodb::Collection<User>) -> mongodb::error::Result<()> {
+    let new_user = User {
+        name: "Alice".to_string(),
+        age: 30,
+        email: "alice@example.com".to_string(),
+    };
+
+    // Insert the document
+    let insert_result = collection.insert_one(new_user, None).await?;
+    println!("Inserted user with ID: {:?}", insert_result.inserted_id);
+
+    Ok(())
+}
+```
+This function inserts a user into the MongoDB collection and prints the inserted document’s ID.
+
+4. Querying MongoDB: Finding Users
+To retrieve data from MongoDB, use queries with filters:
+```
+async fn find_users(collection: &mongodb::Collection<User>) -> mongodb::error::Result<()> {
+    // Define a query filter (users older than 25)
+    let filter = doc! { "age": { "$gt": 25 } };
+
+    let mut cursor = collection.find(filter, None).await?;
+    
+    while let Some(user) = cursor.try_next().await? {
+        println!("Found user: {:?}", user);
+    }
+    
+    Ok(())
+}
+```
+The find function fetches documents that match a filter.
+The cursor iterates through results asynchronously.
+
+5. Updating a Document
+To update user data:
+```
+async fn update_user_email(collection: &mongodb::Collection<User>) -> mongodb::error::Result<()> {
+    let filter = doc! { "name": "Alice" };
+    let update = doc! { "$set": { "email": "alice.new@example.com" } };
+
+    let update_result = collection.update_one(filter, update, None).await?;
+    println!("Modified {} documents", update_result.modified_count);
+
+    Ok(())
+}
+```
+This updates Alice’s email while keeping other fields unchanged.
+
+6. Deleting a Document
+To remove a user:
+```
+async fn delete_user(collection: &mongodb::Collection<User>) -> mongodb::error::Result<()> {
+    let filter = doc! { "name": "Alice" };
+
+    let delete_result = collection.delete_one(filter, None).await?;
+    println!("Deleted {} document(s)", delete_result.deleted_count);
+
+    Ok(())
+}
+```
+This deletes the first user found with name: "Alice".

@@ -1,14 +1,14 @@
 
 import os
 from typing import Dict
-
+import shutil
+import os
 class ProjectGenerator:
     def __init__(self, llm_client):
         self.llm_client = llm_client
         self.cache_dir = "./generated_projects"
 
     def parse_llm_response(response: str) -> Dict[str, str]:
-        """Parses the LLM response, extracts file content inside triple backticks, and stores extra text in README.md."""
         files = {}
         current_file = None
         current_content = []
@@ -47,10 +47,20 @@ class ProjectGenerator:
         return files
 
     def save_files(files: Dict[str, str], project_dir: str):
-        """Saves extracted files from LLM response to disk."""
         for filepath, content in files.items():
             full_path = os.path.join(project_dir, filepath)
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
             with open(full_path, 'w', encoding='utf-8') as f:
                 f.write(content)
         print(f"Files saved successfully in {project_dir}")
+
+ 
+
+    def copy_folder(source_folder,count):
+
+        parent_directory = os.path.dirname(source_folder)
+        print("parent_directory",parent_directory)
+        new_folder_name = f"generate_rust_project_copy{count}"
+        destination_folder = os.path.join(parent_directory, new_folder_name)
+        shutil.copytree(source_folder, destination_folder)
+        print(f"Folder copied from {source_folder} to {destination_folder}")
